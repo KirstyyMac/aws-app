@@ -1,7 +1,7 @@
 import boto3
 
 route53 = boto3.client('route53')
-c
+dynamodb = boto3.client('dynamodb')
 
 
 def lambda_handler(event, context):

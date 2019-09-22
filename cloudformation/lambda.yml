@@ -1,0 +1,115 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create lambdas
+
+Parameters:
+  LambdaBucket:
+    Type: "String"
+    Default: "aws-app-lambda"
+
+  LambdaRoute53ReaderFileName:
+    Type: "String"
+    Default: "route53-reader.zip"
+
+  LambdaGetRoute53InfoFileName:
+    Type: "String"
+    Default: "get-route53-info.zip"
+  
+  DynamoDbReadOnlyManagedPolicy:
+    Type: "String"
+    Default: "arn:aws:iam::aws:policy/AmazonDynamoDBReadOnlyAccess"
+  
+  DynamoDbFullAccessManagedPolicy:
+    Type: "String"
+    Default: "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+  
+  Route53ReadOnlyManagedPolicy:
+    Type: "String"
+    Default: "arn:aws:iam::aws:policy/AmazonRoute53ReadOnlyAccess"
+  
+  XRayWriteOnlyManagedPolicy:
+    Type: "String"
+    Default: "arn:aws:iam::aws:policy/AWSXRayDaemonWriteAccess"
+
+Resources:
+  lambdaReadRoute53:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: 
+        S3Bucket: !Ref LambdaBucket
+        S3Key: !Ref LambdaRoute53ReaderFileName
+      FunctionName: "Route53-Reader"
+      Handler: "route53-reader.lambda_handler"
+      Role: !GetAtt lambdaReadRoute53IAMRole.Arn
+      Runtime: python3.6
+      TracingConfig:
+        Mode: "Active"
+
+  lambdaGetInfoRoute53:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code: 
+        S3Bucket: !Ref LambdaBucket
+        S3Key: !Ref LambdaGetRoute53InfoFileName
+      FunctionName: "Route53-Get-Info"
+      Handler: "get-route53-info.lambda_handler"
+      Role: !GetAtt lambdaGetInfoRoute53IAMRole.Arn
+      Runtime: python3.6
+      TracingConfig:
+        Mode: "Active"
+
+  lambdaReadRoute53IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+      ManagedPolicyArns:
+        - !Ref DynamoDbFullAccessManagedPolicy
+        - !Ref Route53ReadOnlyManagedPolicy
+        - !Ref XRayWriteOnlyManagedPolicy
+  
+
+  lambdaGetInfoRoute53IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - "sts:AssumeRole"
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+      ManagedPolicyArns:
+        - !Ref DynamoDbReadOnlyManagedPolicy
+        - !Ref XRayWriteOnlyManagedPolicy
+  
+  LambdaLogsPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: "Lambda-Logs"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action:
+              - "logs:CreateLogGroup"
+              - "logs:CreateLogStream"
+              - "logs:PutLogEvents"
+            Effect: "Allow"
+            Resource:
+              - !GetAtt lambdaGetInfoRoute53.Arn 
+              - !GetAtt lambdaReadRoute53.Arn
+      Roles:
+        - !Ref lambdaGetInfoRoute53IAMRole
+        - !Ref lambdaReadRoute53IAMRole
+
+Outputs:
+  lambdaArn:
+    Value: !GetAtt lambdaReadRoute53.Arn
