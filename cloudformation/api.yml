@@ -1,21 +1,51 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Create rest api
 
+Parameters:
+  apiGatewayStageName:
+    Type: "String"
+    Default: "dev"
+
+  lambdaFunctionName:
+    Type: String 
+    Default: "read-route53"
+  
+  lambdaArn:
+    Type: String
+    Default: "arn:aws:lambda:ap-southeast-2:557710541832:function:read-route53"
+
 Resources:
-  MyRestApi:
+  Route53Api:
     Type: AWS::ApiGateway::RestApi
     Properties:
-      Description: A test API
-      Name: MyRestAPI
-      EndpointConfiguration:
-        Types:
-          - EDGE
+      Description: "Route53 API"
+      Name: "Route53Api"
 
-  MyApiResource:
-    Type: AWS::ApiGateway::Resource
+  ApiMethod:
+    Type: AWS::ApiGateway::Method
+    Properties: 
+      AuthorizationType: "NONE"
+      RestApiId: !Ref Route53Api
+      ResourceId: !GetAtt Route53Api.RootResourceId
+      HttpMethod: GET
+      Integration:
+        IntegrationHttpMethod: GET
+        Type: AWS_PROXY
+        Uri: !Sub
+          - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations"
+          - lambdaArn: !Ref lambdaArn
 
-  Get Method
-    Lmabda integration 
-    Get route53 info lambda
-
-https://sanderknape.com/2017/05/building-a-serverless-website-in-aws/
+  apiGatewayDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - "ApiMethod"
+    Properties:
+      RestApiId: !Ref "Route53Api"
+      StageName: !Ref apiGatewayStageName
+  
+  lambdaApiGatewayInvoke:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref lambdaArn
+      Principal: "apigateway.amazonaws.com"
