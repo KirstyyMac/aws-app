@@ -1,0 +1,21 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create rest api
+
+Resources:
+  MyRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: A test API
+      Name: MyRestAPI
+      EndpointConfiguration:
+        Types:
+          - EDGE
+
+  MyApiResource:
+    Type: AWS::ApiGateway::Resource
+
+  Get Method
+    Lmabda integration 
+    Get route53 info lambda
+
+https://sanderknape.com/2017/05/building-a-serverless-website-in-aws/

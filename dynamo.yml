@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploy dynamodb table
+
+Resources:
+  dynambodbtable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: "Id"
+          AttributeType: "S"
+        - AttributeName: "Name"
+          AttributeType: "S"
+        - AttributeName: "ResourceRecordSetCount"
+          AttributeType: "N"  
+      KeySchema:
+        - AttributeName: "Id"
+          KeyType: "HASH"
+        - AttributeName: "ResourceRecordSetCount"
+          KeyType: "RANGE"
+      GlobalSecondaryIndexes:
+        - IndexName: "name-index"
+          KeySchema:
+            - AttributeName: "Name"
+              KeyType: HASH
+          Projection:
+            NonKeyAttributes:
+              - "ResourceRecordCount"
+            ProjectionType: "INCLUDE"
+          ProvisionedThroughput:
+            ReadCapacityUnits: "5"
+            WriteCapacityUnits: "5"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
+      TableName: "Route53Records"

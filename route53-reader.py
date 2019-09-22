@@ -1,18 +1,17 @@
-import json
 import boto3
-import re
-import uuid
-import time
-import random
-from datetime import datetime
 
-print('Loading function ' + datetime.now().time().isoformat())
 route53 = boto3.client('route53')
-ec2 = boto3.resource('ec2')
-compute = boto3.client('ec2')
-dynamodb_client = boto3.client('dynamodb')
-dynamodb_resource = boto3.resource('dynamodb')
+c
+
 
 def lambda_handler(event, context):
-    hosted_zones = route53.list_hosted_zones()
-    print hosted_zones
+    #get data from route53
+    hosted_zones=route53.list_hosted_zones()
+    for zone in hosted_zones['HostedZones']:
+        dynamodb.put_item(TableName='Route53Records', 
+            Item={
+                'Id': {'S':zone['Id']},
+                'Name': {'S':zone['Name']},
+                'ResourceRecordSetCount': {'N':str(zone['ResourceRecordSetCount'])}
+            }
+        )
