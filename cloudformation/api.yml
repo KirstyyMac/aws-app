@@ -49,3 +49,4 @@ Resources:
       Action: lambda:InvokeFunction
       FunctionName: !Ref lambdaArn
       Principal: "apigateway.amazonaws.com"
+      SourceArn: "arn:aws:lambda:ap-southeast-2:557710541832:function:read-route53/*/Get/"
