@@ -1,0 +1,30 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Create lambdas
+
+Parameters:
+  LambdaARN:
+    Type: "String"
+    Default: "arn:aws:lambda:ap-southeast-2:557710541832:function:read-route53"
+
+  LambdaName:
+    Type: "String"
+    Default: "read-route53"
+
+Resources:
+  checkRoute53Alarm:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: "Check-Route-53"
+      State: "ENABLED"
+      ScheduleExpression: "rate(3 hours)"
+      Targets:
+        - Arn: !Ref LambdaARN
+          Id: !Ref LambdaName
+  
+  PermissionForEventsToInvokeLambda: 
+    Type: AWS::Lambda::Permission
+    Properties: 
+      FunctionName: !Ref LambdaName
+      Action: "lambda:InvokeFunction"
+      Principal: "events.amazonaws.com"
+      SourceArn: !GetAtt checkRoute53Alarm.Arn

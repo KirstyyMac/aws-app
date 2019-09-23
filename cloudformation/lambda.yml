@@ -111,5 +111,8 @@ Resources:
         - !Ref lambdaReadRoute53IAMRole
 
 Outputs:
-  lambdaArn:
+  readRoute53lambdaArn:
     Value: !GetAtt lambdaReadRoute53.Arn
+  
+  getInfoRoute53lambdaArn:
+    Value: !GetAtt lambdaGetInfoRoute53.Arn
