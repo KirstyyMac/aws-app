@@ -2,7 +2,7 @@
 
 This repo contains an application that reads data for Route 53 records and displays this on a webpage. This website is serverless, meaning that the only costs that will be charged will be when people hit the website. Making it serverless also means there is much less to manage, all the overhead rests with AWS. Using DynamoDB over RDS also means we have more flexibility with what data we want to store from Route53. 
 
-![architecture](images/aws-app-carsales.jpg)
+![architecture](images/aws-app.jpg)
 
 The architecture components are:
 - Lambda: There are two lambda functions in use, one to query route53 and update dynamoDB and the other that gets called by the website when it's hit to dynamically create the table with the Route53 tables
@@ -16,6 +16,10 @@ Order of CloudFormation Deployment:
 3. API Gateway (dependent on Lambda ARNs to be able to call functions)
 4. Cloudwatch-events (dependent on lambda function existing)
 
+Below is a screenshot of the working website on my machine with some clickops for the API:
+
+![samplescreenshot](images/screenshot.PNG)
+
 # To-do
 - Work on CORS set-up as code to enable proper deployment of API (it was so easy to set-up in the console, but it proved more difficult as code...)
 - Set-up a CI/CD pipeline to automatically build, package deploy (without having to use/deploy anything extra for this little project probably would have used GitHub actions and code build/code deploy in AWS, I had to manually upload the html to S3 which hurt a little bit)
@@ -23,7 +27,3 @@ Order of CloudFormation Deployment:
 - Setup a proper DNS to front the website (rather than just the S3 bucket URL to access the website)
 - Consider authentication: This will depend on who needs access, Amazon Cognito is the easiest native AWS service used to manage users. This would involve create a user pool to manage accounts (if users are registering for access or using a web federation). If using active directory, it would be some sort of SAML auth (harder)
 - Add tags to resources to be able to appropriately identify/manage these
-
-Below is a screenshot of the working website on my machine with some clickops for the API:
-
-![samplescreenshot](images/screenshot.PNG)
