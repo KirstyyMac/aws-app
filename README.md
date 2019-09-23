@@ -1,4 +1,4 @@
-# aws-app-carsales
+# aws-app
 
 This repo contains an application that reads data for Route 53 records and displays this on a webpage. This website is serverless, meaning that the only costs that will be charged will be when people hit the website. Making it serverless also means there is much less to manage, all the overhead rests with AWS. Using DynamoDB over RDS also means we have more flexibility with what data we want to store from Route53. 
 
